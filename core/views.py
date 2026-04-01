@@ -10,7 +10,6 @@ from .forms import ClienteForm,CapitalForm
 from django.contrib import messages
 from django.db.models import Sum,F
 from datetime import date, timedelta
-from django.contrib.auth.decorators import login_required
 import pandas as pd
 
 
@@ -101,7 +100,7 @@ def nuevo_pedido(request):
     }
     return render(request, "nuevo_pedido.html", context)
 
-@login_required
+
 def nueva_entrega(request):
     pedidos_raw = Pedido.objects.all().order_by('-fecha')
     pedidos = []
@@ -137,7 +136,7 @@ def nueva_entrega(request):
     }
     return render(request, 'nueva_entrega.html', context)
 
-@login_required
+
 def registrar_gasto(request):
     if request.method == 'POST':
         descripcion = request.POST.get('descripcion')
