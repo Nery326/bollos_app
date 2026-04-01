@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>Cobrar bollos pendientes - {{ cliente.nombre }}</h2>
+
+    <p>Total entregados: <strong>{{ total_entregados }}</strong> bollos</p>
+    <p>Total pendientes: <strong>{{ total_pendientes }}</strong> bollos</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Pedido</th>
+                    <th>Cantidad entregada</th>
+                    <th>Marcar como pagado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entrega in entregas_pendientes %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ entrega.pedido }}</td>
+                    <td>{{ entrega.cantidad_entregada }}</td>
+                    <td>
+                        <input type="checkbox" name="entrega_id" value="{{ entrega.id }}">
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No hay entregas pendientes</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if entregas_pendientes %}
+        <button type="submit" class="btn btn-success">Cobrar seleccionados</button>
+        {% endif %}
+        <a href="{% url 'lista_clientes' %}" class="btn btn-secondary">Volver</a>
+    </form>
+</div>
+{% endblock %}

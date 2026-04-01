@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="card shadow-lg border-0">
+        <div class="card-body">
+
+            <h3 class="mb-4">Registrar pedido de bollos</h3>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- CLIENTE -->
+                <div class="mb-3">
+                    <label>Cliente</label>
+                    <select name="cliente" id="cliente" class="form-control">
+                        {% for cliente in form.fields.cliente.queryset %}
+                            <option value="{{ cliente.id }}" data-precio="{{ cliente.precio }}">
+                                {{ cliente.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- CANTIDAD -->
+                <div class="mb-3">
+                    <label>Cantidad de bollos</label>
+                    <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="Ej: 10">
+                </div>
+
+                <!-- PRECIO AUTOMATICO -->
+                <div class="mb-3">
+                    <label>Precio por bollo</label>
+                    <input type="text" id="precio" class="form-control" readonly>
+                </div>
+
+                <!-- TOTAL AUTOMATICO -->
+                <div class="mb-3">
+                    <label>Total a pagar</label>
+                    <input type="text" id="total" class="form-control" readonly>
+                </div>
+
+                <button class="btn btn-primary">
+                    Guardar pedido
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    const cliente = document.getElementById("cliente");
+    const cantidad = document.getElementById("cantidad");
+    const precio = document.getElementById("precio");
+    const total = document.getElementById("total");
+
+    function calcularTotal(){
+
+        let precioCliente = cliente.options[cliente.selectedIndex].dataset.precio;
+        let cant = cantidad.value;
+
+        precio.value = precioCliente;
+
+        if(cant){
+            total.value = precioCliente * cant;
+        }
+    }
+
+    cliente.addEventListener("change", calcularTotal);
+    cantidad.addEventListener("keyup", calcularTotal);
+
+</script>
+
+{% endblock %}

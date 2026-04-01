@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- TÍTULO Y BOTONES RÁPIDOS -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Dashboard de Bollos - Versión Premium</h2>
+            <p class="text-muted mb-0">Control completo de pedidos, entregas e ingresos</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/nuevo_pedido/" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i> Nuevo Pedido</a>
+            <a href="/nueva_entrega/" class="btn btn-warning"><i class="bi bi-truck me-1"></i> Registrar Entrega</a>
+            <a href="/registrar_gasto/" class="btn btn-danger"><i class="bi bi-cash-stack me-1"></i> Registrar Gasto</a>
+            <a href="/historial_entregas/" class="btn btn-info"><i class="bi bi-clock-history me-1"></i> Historial</a>
+
+            <a href="{% url 'export_excel' %}" class="btn btn-primary"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Descargar Excel</a>
+            <button id="btnReiniciar" class="btn btn-danger">
+                <i class="bi bi-trash3 me-1"></i> Reiniciar Datos
+            </button>
+
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+            document.getElementById("btnReiniciar").addEventListener("click", function() {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Se eliminarán todos los pedidos, entregas y gastos.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, reiniciar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch("{% url 'reiniciar_datos' %}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                                "Content-Type": "application/json"
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'ok') {
+                                Swal.fire(
+                                    '¡Hecho!',
+                                    data.mensaje,
+                                    'success'
+                                ).then(() => {
+                                    window.location.href = "{% url 'dashboard' %}";
+                                });
+                            } else {
+                                Swal.fire('Error', data.mensaje, 'error');
+                            }
+                        })
+                    }
+                })
+            });
+            </script>
+        </div>
+    </div>
+
+    <!-- TARJETAS DE RESUMEN -->
+    <div class="row g-4">
+
+        <!-- Total Bollos -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-basket3 fs-3 text-primary me-3"></i>
+                        <h6 class="fw-bold mb-0">Total Bollos Pedidos</h6>
+                    </div>
+                    <h2 class="fw-bold text-primary">{{ total_bollos }}</h2>
+                    <small class="text-muted">Cantidad total de bollos</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bollos Pendientes -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-basket3 fs-3 text-primary me-3"></i>
+                        <h6 class="fw-bold mb-0">Bollos Pendientes</h6>
+                    </div>
+                    <h2 class="fw-bold text-primary">{{ bollos_pendientes }}</h2>
+                    <small class="text-muted">Bollos que aún no se han entregado</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Ingresos -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-currency-dollar fs-3 text-success me-3"></i>
+                        <h6 class="fw-bold mb-0">Total Ingresos</h6>
+                    </div>
+                    <h2 class="fw-bold text-success">${{ total_ingresos|floatformat:2 }}</h2>
+                    <small class="text-muted">Ingresos generados por pedidos</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Gastos -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-wallet2 fs-3 text-danger me-3"></i>
+                        <h6 class="fw-bold mb-0">Total Gastos</h6>
+                    </div>
+                    <h2 class="fw-bold text-danger">${{ total_gastos|floatformat:2 }}</h2>
+                    <small class="text-muted">Gastos para preparar los bollos</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bollos Entregados -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-check2-circle fs-3 text-info me-3"></i>
+                        <h6 class="fw-bold mb-0">Bollos Entregados</h6>
+                    </div>
+                    <h2 class="fw-bold text-info">{{ entregas_pagadas }}</h2>
+                    <small class="text-muted">Bollos que ya pagaron</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bollos Pendientes por Cobrar -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-exclamation-circle fs-3 text-warning me-3"></i>
+                        <h6 class="fw-bold mb-0">Bollos Pendientes por Cobrar</h6>
+                    </div>
+                    <h2 class="fw-bold text-warning">{{ entregas_deben }}</h2>
+                    <small class="text-muted">Bollo que deben cobrar</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Capital Actual -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-currency-dollar fs-3 text-success me-3"></i>
+                        <h6 class="fw-bold mb-0">Capital Actual</h6>
+                    </div>
+                    <h2 class="fw-bold text-primary">${{ capital_actual|floatformat:2 }}</h2>
+                    <small class="text-muted">Capital base - gastos</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ganancia Neta -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-wallet2 fs-3 text-info me-3"></i>
+                        <h6 class="fw-bold mb-0">Ganancia Neta</h6>
+                    </div>
+                    <h2 class="fw-bold text-success">${{ ganancia_neta|floatformat:2 }}</h2>
+                    <small class="text-muted">Ingresos - Gastos</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- GRÁFICAS -->
+    <div class="row g-4 mt-4">
+
+        <!-- Bollos Vendidos -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Bollos Vendidos</h6>
+                    <canvas id="graficaBollos" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ingresos -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Ingresos</h6>
+                    <canvas id="graficaIngresos" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gastos -->
+        <div class="col-lg-6 mt-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Gastos</h6>
+                    <canvas id="graficaGastos" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ganancia Neta -->
+        <div class="col-lg-6 mt-4">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">Ganancia Neta</h6>
+                    <canvas id="graficaGanancia" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const labels = {{ labels|safe }};
+    const dataBollos = {{ data_bollos|safe }};
+    const dataIngresos = {{ data_ingresos|safe }};
+    const totalGastos = parseFloat('{{ total_gastos|default:"0" }}');
+    const gananciaNeta = parseFloat('{{ ganancia_neta|default:"0" }}');
+
+    // Bollos Vendidos (barra)
+    new Chart(document.getElementById('graficaBollos'), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: 'Bollos Vendidos', data: dataBollos, backgroundColor: '#22c55e', borderRadius: 6 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Ingresos (línea)
+    new Chart(document.getElementById('graficaIngresos'), {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Ingresos ($)', data: dataIngresos, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#2563eb' }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Gastos (promedio diario)
+    new Chart(document.getElementById('graficaGastos'), {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Gastos ($)', data: Array(labels.length).fill(totalGastos / labels.length), borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.1)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#dc2626' }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Ganancia Neta (promedio diario)
+    new Chart(document.getElementById('graficaGanancia'), {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Ganancia Neta ($)', data: Array(labels.length).fill(gananciaNeta / labels.length), borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#16a34a' }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+});
+</script>
+{% endblock %}

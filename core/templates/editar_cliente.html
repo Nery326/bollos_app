@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm rounded-4 mx-auto" style="max-width: 600px;">
+        <div class="card-body p-4">
+            <h4 class="fw-bold mb-4">Editar Cliente: {{ cliente.nombre }}</h4>
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                <div class="mb-3">
+                    {{ form.nombre.label_tag }}
+                    {{ form.nombre }}
+                    {{ form.nombre.errors }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.telefono.label_tag }}
+                    {{ form.telefono }}
+                    {{ form.telefono.errors }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.direccion.label_tag }}
+                    {{ form.direccion }}
+                    {{ form.direccion.errors }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.precio.label_tag }}
+                    {{ form.precio }}
+                    {{ form.precio.errors }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Actualizar Cliente</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

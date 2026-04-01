@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+
+    <h2 class="fw-bold mb-3">Registrar Gasto</h2>
+
+    <!-- ALERTAS -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- FORMULARIO -->
+    <div class="card shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción</label>
+                    <input type="text" name="descripcion" id="descripcion" class="form-control" placeholder="Ej: Harina, Manteca" required>
+                </div>
+                <div class="mb-3">
+                    <label for="valor" class="form-label">Valor ($)</label>
+                    <input type="number" step="0.01" name="valor" id="valor" class="form-control" placeholder="0.00" required>
+                </div>
+                <button type="submit" class="btn btn-danger">Registrar Gasto</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- LISTA DE GASTOS -->
+    <div class="card shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Historial de Gastos</h5>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Valor ($)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for g in gastos %}
+                        <tr>
+                            <td>{{ g.fecha }}</td>
+                            <td>{{ g.descripcion }}</td>
+                            <td>${{ g.valor|floatformat:2 }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">No hay gastos registrados.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

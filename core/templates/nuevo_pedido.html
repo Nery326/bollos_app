@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>Nuevo Pedido</h2>
+    <form method="POST" id="formPedido">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label>Cliente</label>
+            <select name="cliente" id="cliente" class="form-select">
+                {% for c in clientes %}
+                    <option value="{{ c.id }}" data-precio="{{ c.precio }}">{{ c.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Cantidad de bollos</label>
+            <input type="number" name="cantidad" id="cantidad" class="form-control" value="1" min="1">
+        </div>
+
+        <div class="mb-3">
+            <label>Precio por bollo</label>
+            <input type="text" name="precio" id="precio" class="form-control" readonly>
+        </div>
+
+        <div class="mb-3">
+            <label>Total</label>
+            <input type="text" name="total" id="total" class="form-control" readonly>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar Pedido</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cliente = document.getElementById('cliente');
+    const cantidad = document.getElementById('cantidad');
+    const precio = document.getElementById('precio');
+    const total = document.getElementById('total');
+
+    function actualizarTotal() {
+        let p = parseFloat(cliente.selectedOptions[0].dataset.precio);
+        let c = parseInt(cantidad.value);
+        precio.value = p.toFixed(2);
+        total.value = (p * c).toFixed(2);
+    }
+
+    cliente.addEventListener('change', actualizarTotal);
+    cantidad.addEventListener('input', actualizarTotal);
+
+    actualizarTotal();
+});
+</script>
+{% endblock %}

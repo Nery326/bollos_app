@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4">
+    <h2 class="fw-bold mb-4">Historial de Entregas</h2>
+
+    <!-- FILTRO POR FECHA -->
+    <form method="GET" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label for="fecha_inicio" class="form-label">Fecha inicio</label>
+            <input type="date" class="form-control" name="fecha_inicio" id="fecha_inicio" value="{{ fecha_inicio }}">
+        </div>
+        <div class="col-md-3">
+            <label for="fecha_fin" class="form-label">Fecha fin</label>
+            <input type="date" class="form-control" name="fecha_fin" id="fecha_fin" value="{{ fecha_fin }}">
+        </div>
+        <div class="col-md-3 align-self-end">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </form>
+
+    <!-- RESUMEN -->
+    <div class="mb-3">
+        <span class="badge bg-success">Total bollos entregados: {{ total_bollos }}</span>
+        <span class="badge bg-info">Total pagados: {{ total_pagado }}</span>
+    </div>
+
+    <!-- TABLA DE ENTREGAS -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Cliente</th>
+                    <th>Pedido</th>
+                    <th>Cantidad entregada</th>
+                    <th>Total pedido</th>
+                    <th>Pagado</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in entregas %}
+                    <tr>
+                        <td>{{ e.pedido.cliente.nombre }}</td>
+                        <td>{{ e.pedido.cantidad }} bollos</td>
+                        <td>{{ e.cantidad_entregada }}</td>
+                        <td>${{ e.pedido.total|floatformat:2 }}</td>
+                        <td>
+                            {% if e.pagado %}
+                                <span class="badge bg-success">Sí</span>
+                            {% else %}
+                                <span class="badge bg-danger">No</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ e.fecha }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No se encontraron entregas</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

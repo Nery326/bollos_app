@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm rounded-4 mx-auto" style="max-width: 600px;">
+        <div class="card-body p-4">
+            <h4 class="fw-bold mb-4">Registrar su Capital Base</h4>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+
+                <div class="mb-3">
+                    {{ form.monto_inicial.label_tag }}
+                    {{ form.monto_inicial }}
+                    {{ form.monto_inicial.errors }}
+                    {% if capital %}
+                        <small class="text-muted">Valor anterior: {{ capital.monto_inicial }}</small>
+                    {% endif %}
+                </div>
+
+        
+
+                <button type="submit" class="btn btn-primary w-100">Registrar Capital base</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
